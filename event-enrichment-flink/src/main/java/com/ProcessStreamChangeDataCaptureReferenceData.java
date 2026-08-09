@@ -6,7 +6,10 @@ import com.pojo.Rate;
 import com.utils.KafkaInitialiser;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.java.utils.ParameterTool;
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.configuration.RestOptions;
 import org.apache.flink.connector.kafka.source.KafkaSource;
+import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.slf4j.Logger;
@@ -18,7 +21,11 @@ public class ProcessStreamChangeDataCaptureReferenceData {
     private static final String DEFAULT_REFERENCE_DATA_TOPIC = "rates";
 
     public static void main(String[] args) throws Exception {
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        Configuration conf = new Configuration();
+        conf.set(RestOptions.PORT, 8081);
+        conf.set(RestOptions.BIND_PORT, "8081");
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment(conf);
+        env.enableCheckpointing(100000); // Enable checkpointing every 1 min
 
         //read the parameters specified from the command line
         ParameterTool parameter = ParameterTool.fromArgs(args);
